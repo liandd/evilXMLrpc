@@ -53,14 +53,13 @@ def XMLrpc_ffuf(url):
                 sys.exit(1)
     else:
         with open("request.xml", "w") as create_xml_request:
-            create_xml_request.write("""
-            <?xml version="1.0" encoding="utf-8"?>
-            <methodCall>
-            <methodName>system.listMethods</methodName>
-            <params></params>
-            </methodCall>
-            """)
-            XMLrpc_ffuf(url)
+            create_xml_request.write("""<?xml version="1.0" encoding="utf-8"?>
+<methodCall>
+<methodName>system.listMethods</methodName>
+<params></params>
+</methodCall>""")
+
+        XMLrpc_ffuf(url)
 
 
 def XMLbrute_force(url, name, wordlist):
